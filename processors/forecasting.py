@@ -26,12 +26,12 @@ for line in sys.stdin:
     sys.stdout.flush()
     #line protocol is parsed and added to the minibatch 
     parsed = parse_line(line)
-    brew = parsed['tags']['brew']
-    field = parsed['fields']['temperature']
+    brew = parsed['tags']['name']
+    field = parsed['fields']['Temperature']
     time = parsed['time']
     time = pd.to_datetime(time, unit='ns', exact=True)
     timestamps.append(time)
-    if brew == 'bv_1':
+    if brew == 'fuel-engine-1':
         bv_1.append(field)
         haze_v5.append(Nan)
     else:
@@ -44,7 +44,7 @@ for line in sys.stdin:
 
     #When the minimum batch length is reached then forecasts are made. 
     if len(timestamps) >= minbatchlen and len(timestamps) == len(haze_v5) and len(haze_v5) == len(bv_1):
-        d={'haze_v5': haze_v5, 'bv_1' : bv_1}
+        d={'fuel-engine-2': haze_v5, 'fuel-engine-1' : bv_1}
         #Create a DataFrame and specify the timestamp index frequency for the statsmodels forecast. 
         df = pd.DataFrame(data=d, index=pd.DatetimeIndex(timestamps, freq='s'))
         currentlen = len(df)
@@ -71,10 +71,10 @@ for line in sys.stdin:
                     value = fcast[i]
                     time = time + timedelta(seconds = 1)
                     timestr = str(time.value)
-                    lineout = "fcast" + "," + "brew" + "=" + tag + " temperature=" + str(value) + " " + timestr 
+                    lineout = "fcast" + "," + "name" + "=" + tag + " Temperature=" + str(value) + " " + timestr 
                     print(lineout)
             
                     #Calculate residuals  
                     residual = abs(fcast[-1] - lastvalue) 
-                    anomalylineout = "anomaly" + "," + "brew" + "=" + tag + " temperature=" + str(residual) + " " + timestr 
+                    anomalylineout = "anomaly" + "," + "name" + "=" + tag + " Temperature=" + str(residual) + " " + timestr 
                     print(anomalylineout)

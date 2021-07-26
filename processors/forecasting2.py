@@ -26,12 +26,12 @@ for line in sys.stdin:
     sys.stdout.flush()
     #line protocol is parsed and added to the minibatch 
     parsed = parse_line(line)
-    brew = parsed['tags']['brew']
-    field = parsed['fields']['temperature']
+    brew = parsed['tags']['name']
+    field = parsed['fields']['Temperature']
     time = parsed['time']
     time = pd.to_datetime(time, unit='ns', exact=True)
     timestamps.append(time)
-    if brew == 'bv_1':
+    if brew == 'fuel-engine-1':
         bv_1.append(field)
         haze_v5.append(Nan)
     else:
@@ -71,10 +71,10 @@ for line in sys.stdin:
                     value = fcast[i]
                     time = time + timedelta(seconds = 1)
                     timestr = str(time.value)
-                    lineout = "fcastlinear" + "," + "brew" + "=" + tag + " temperature=" + str(value) + " " + timestr 
+                    lineout = "fcastlinear" + "," + "name" + "=" + tag + " Temperature=" + str(value) + " " + timestr 
                     print(lineout)
             
                     #Calculate residuals  
                     residual = abs(fcast[-1] - lastvalue) 
-                    anomalylineout = "anomalylinear" + "," + "brew" + "=" + tag + " temperature=" + str(residual) + " " + timestr 
+                    anomalylineout = "anomalylinear" + "," + "name" + "=" + tag + " Temperature=" + str(residual) + " " + timestr 
                     print(anomalylineout)
